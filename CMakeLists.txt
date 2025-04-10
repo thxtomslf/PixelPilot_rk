@@ -17,6 +17,8 @@ set(SOURCE_FILES
         src/dvr.cpp
         src/mavlink.h
         src/mavlink.c
+        src/crsf.h
+        src/crsf.c
         src/main.cpp
         src/main.h
         src/wfbcli.hpp

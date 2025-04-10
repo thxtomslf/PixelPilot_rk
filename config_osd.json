@@ -113,7 +113,127 @@
                 "alpha": 0.4
             },
             "facts": []
-        },        
+        },
+        {
+            "name": "CRSF Battery Background",
+            "type": "BoxWidget",
+            "x": 0,
+            "y": 100,
+            "width": 270,
+            "height": 120,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "alpha": 0.4
+            },
+            "facts": []
+        },
+        {
+            "name": "CRSF Battery Voltage",
+            "type": "TplTextWidget",
+            "x": 10,
+            "y": 110,
+            "template": "BAT: %.1fV",
+            "facts": [
+                {"name": "battery.voltage", "tags": {"sysid": "1", "compid": "1"}}
+            ]
+        },
+        {
+            "name": "CRSF Battery Current",
+            "type": "TplTextWidget",
+            "x": 10,
+            "y": 140,
+            "template": "CUR: %.1fA",
+            "facts": [
+                {"name": "battery.current", "tags": {"sysid": "1", "compid": "1"}}
+            ]
+        },
+        {
+            "name": "CRSF Battery Consumed",
+            "type": "TplTextWidget",
+            "x": 10,
+            "y": 170,
+            "template": "MAH: %.0f",
+            "facts": [
+                {"name": "battery.consumed_mah", "tags": {"sysid": "1", "compid": "1"}}
+            ]
+        },
+        {
+            "name": "CRSF Battery Remaining",
+            "type": "TplTextWidget",
+            "x": 150,
+            "y": 110,
+            "template": "REM: %.0f%%",
+            "facts": [
+                {"name": "battery.remaining_percent", "tags": {"sysid": "1", "compid": "1"}}
+            ]
+        },
+        {
+            "name": "CRSF Attitude Background",
+            "type": "BoxWidget",
+            "x": 0,
+            "y": 230,
+            "width": 270,
+            "height": 100,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "alpha": 0.4
+            },
+            "facts": []
+        },
+        {
+            "name": "CRSF Pitch",
+            "type": "TplTextWidget",
+            "x": 10,
+            "y": 240,
+            "template": "PITCH: %.1f°",
+            "facts": [
+                {"name": "attitude.pitch", "tags": {"sysid": "1", "compid": "1"}}
+            ]
+        },
+        {
+            "name": "CRSF Roll",
+            "type": "TplTextWidget",
+            "x": 10,
+            "y": 270,
+            "template": "ROLL: %.1f°",
+            "facts": [
+                {"name": "attitude.roll", "tags": {"sysid": "1", "compid": "1"}}
+            ]
+        },
+        {
+            "name": "CRSF Yaw",
+            "type": "TplTextWidget",
+            "x": 10,
+            "y": 300,
+            "template": "YAW: %.1f°",
+            "facts": [
+                {"name": "attitude.yaw", "tags": {"sysid": "1", "compid": "1"}}
+            ]
+        },
+        {
+            "name": "CRSF Altitude",
+            "type": "TplTextWidget",
+            "x": 150,
+            "y": 240,
+            "template": "ALT: %.1fm",
+            "facts": [
+                {"name": "altitude", "tags": {"sysid": "1", "compid": "1"}}
+            ]
+        },
+        {
+            "name": "CRSF Flight Mode",
+            "type": "TplTextWidget",
+            "x": 150,
+            "y": 270,
+            "template": "MODE: %s",
+            "facts": [
+                {"name": "flight_mode", "tags": {"sysid": "1", "compid": "1"}}
+            ]
+        },
         {
             "name": "Video FPS and resolution",
             "type": "VideoWidget",
@@ -135,7 +255,7 @@
                     "name": "video.height"
                 }
             ]
-        },        
+        },
         {
             "name": "Video link throughput",
             "type": "VideoBitrateWidget",
@@ -151,7 +271,7 @@
                     "name": "gstreamer.received_bytes"
                 }
             ]
-        },        
+        },
         {
             "name": "DVR status",
             "type": "DvrStatusWidget",

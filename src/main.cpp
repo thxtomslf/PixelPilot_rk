@@ -41,6 +41,7 @@ extern "C" {
 
 #include "mavlink/common/mavlink.h"
 #include "mavlink.h"
+#include "crsf.h"
 }
 
 #include "osd.h"
@@ -318,6 +319,7 @@ void sig_handler(int signum)
 	signal_flag++;
 	mavlink_thread_signal++;
 	wfb_thread_signal++;
+	crsf_thread_signal++;
 	osd_thread_signal++;
 	if (dvr != NULL) {
 		dvr->shutdown();
@@ -466,6 +468,8 @@ void printHelp() {
     "\n"
     "    --mavlink-port <port>  - UDP port for mavlink telemetry        (Default: 14550)\n"
     "\n"
+    "    --crsf-port <port>     - UDP port for CRSF telemetry           (Default: 2001)\n"
+    "\n"
     "    --mavlink-dvr-on-arm   - Start recording when armed\n"
     "\n"
     "    --codec <codec>        - Video codec, should be the same as on VTX  (Default: h265 <h264|h265>)\n"
@@ -514,6 +518,7 @@ int main(int argc, char **argv)
 	int ret;	
 	int i, j;
 	int mavlink_thread = 0;
+	int crsf_thread = 0;
 	int dvr_autostart = 0;
 	int print_modelist = 0;
 	char* dvr_template = NULL;
@@ -527,6 +532,8 @@ int main(int argc, char **argv)
 	uint32_t mode_vrefresh = 0;
 	std::string osd_config_path;
 	auto log_level = spdlog::level::info;
+	bool mavlink_port_specified = false;
+	bool crsf_port_specified = false;
 	
     std::string pidFilePath = "/run/pixelpilot.pid";
     std::ofstream pidFile(pidFilePath);
@@ -604,6 +611,13 @@ int main(int argc, char **argv)
 
 	__OnArgument("--mavlink-port") {
 		mavlink_port = atoi(__ArgValue);
+		mavlink_port_specified = true;
+		continue;
+	}
+
+	__OnArgument("--crsf-port") {
+		crsf_port = atoi(__ArgValue);
+		crsf_port_specified = true;
 		continue;
 	}
 
@@ -614,7 +628,6 @@ int main(int argc, char **argv)
 
 	__OnArgument("--osd") {
 		enable_osd = 1;
-		mavlink_thread = 1;
 		continue;
 	}
 	__OnArgument("--osd-config") {
@@ -687,6 +700,21 @@ int main(int argc, char **argv)
 		video_zpos = 4;
 	}
 	
+	// Determine which telemetry thread to use when OSD is enabled
+	if (enable_osd) {
+		if (mavlink_port_specified && crsf_port_specified) {
+			fprintf(stderr, "ERROR: Cannot use both MAVLink and CRSF telemetry simultaneously.\n");
+			return -1;
+		}
+		
+		if (mavlink_port_specified) {
+			mavlink_thread = 1;
+		} else {
+			// If neither is specified or only CRSF is specified, use CRSF
+			crsf_thread = 1;
+		}
+	}
+	
 	MppCodingType mpp_type = MPP_VIDEO_CodingHEVC;
 	if(codec==VideoCodec::H264) {
 		mpp_type = MPP_VIDEO_CodingAVC;
@@ -749,7 +777,7 @@ int main(int argc, char **argv)
 	ret = pthread_cond_init(&video_cond, NULL);
 	assert(!ret);
 
-	pthread_t tid_frame, tid_display, tid_osd, tid_mavlink, tid_dvr, tid_wfbcli;
+	pthread_t tid_frame, tid_display, tid_osd, tid_mavlink, tid_crsf, tid_dvr, tid_wfbcli;
 	if (dvr_template != NULL) {
 		dvr_thread_params args;
 		args.filename_template = dvr_template;
@@ -779,6 +807,10 @@ int main(int argc, char **argv)
 		}
 		if (mavlink_thread) {
 			ret = pthread_create(&tid_mavlink, NULL, __MAVLINK_THREAD__, &signal_flag);
+			assert(!ret);
+		}
+		if (crsf_thread) {
+			ret = pthread_create(&tid_crsf, NULL, __CRSF_THREAD__, &signal_flag);
 			assert(!ret);
 		}
 		if (wfb_port) {
@@ -821,6 +853,10 @@ int main(int argc, char **argv)
 
 	if (mavlink_thread) {
 		ret = pthread_join(tid_mavlink, NULL);
+		assert(!ret);
+	}
+	if (crsf_thread) {
+		ret = pthread_join(tid_crsf, NULL);
 		assert(!ret);
 	}
 	if (enable_osd) {
