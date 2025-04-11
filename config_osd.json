@@ -174,10 +174,9 @@
         },
         {
             "name": "CRSF Altitude",
-            "type": "IconTplTextWidget",
+            "type": "TplTextWidget",
             "x": -390,
             "y": 160,
-	        "icon_path": "height.png",
             "template": "Высота - %f м",
             "facts": [
                 {"name": "altitude", "tags": {"sysid": "1", "compid": "1"}}
@@ -262,11 +261,11 @@
         },
         {
             "name": "Crosshair",
-            "type": "IconTextWidget",
-            "x": 0,
-            "y": 0,
+            "type": "IconTplTextWidget",
+            "x": 936,
+            "y": 519,
             "icon_path": "cross.png",
-            "text": "",
+            "template": "",
             "facts": []
         },
         {
