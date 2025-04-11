@@ -102,39 +102,39 @@
         {
             "name": "Metrics background",
             "type": "BoxWidget",
-            "x": -270,
+            "x": -400,
             "y": 100,
-            "width": 270,
-            "height": 100,
+            "width": 300,
+            "height": 110,
             "color": {
                 "r": 0.0,
                 "g": 0.0,
                 "b": 0.0,
-                "alpha": 0.4
+                "alpha": 0.2
             },
             "facts": []
         },
         {
             "name": "CRSF Battery Background",
             "type": "BoxWidget",
-            "x": 60,
-            "y": 60,
-            "width": 270,
-            "height": 120,
+            "x": 100,
+            "y": 100,
+            "width": 300,
+            "height": 110,
             "color": {
                 "r": 0.0,
                 "g": 0.0,
                 "b": 0.0,
-                "alpha": 0.4
+                "alpha": 0.2
             },
             "facts": []
         },
         {
             "name": "CRSF Battery Voltage",
             "type": "TplTextWidget",
-            "x": 70,
-            "y": 70,
-            "template": "Аккумулятор - %.1f В",
+            "x": 110,
+            "y": 130,
+            "template": "Аккумулятор - %f В",
             "facts": [
                 {"name": "battery.voltage", "tags": {"sysid": "1", "compid": "1"}}
             ]
@@ -142,9 +142,9 @@
         {
             "name": "CRSF Battery Current",
             "type": "TplTextWidget",
-            "x": 70,
-            "y": 100,
-            "template": "Ток - %.1f А",
+            "x": 110,
+            "y": 160,
+            "template": "Ток - %f А",
             "facts": [
                 {"name": "battery.current", "tags": {"sysid": "1", "compid": "1"}}
             ]
@@ -152,29 +152,33 @@
         {
             "name": "CRSF Battery Consumed",
             "type": "TplTextWidget",
-            "x": 70,
-            "y": 130,
-            "template": "Потрачено - %.0f мАч",
+            "x": 110,
+            "y": 190,
+            "template": "Потрачено - %f мАч",
             "facts": [
                 {"name": "battery.consumed_mah", "tags": {"sysid": "1", "compid": "1"}}
             ]
         },
         {
             "name": "CRSF Link Throughput",
-            "type": "TplTextWidget",
-            "x": 330,
-            "y": 70,
-            "template": "Связь - %.1f МБ/с",
+            "type": "VideoBitrateWidget",
+            "x": -390,
+            "y": 130,
+            "template": "Связь - %f МБ/с",
+	    "icon_path": "network.png",
+	    "per_second_window_s": 2,
+	    "per_second_bucket_ms": 100,
             "facts": [
                 {"name": "gstreamer.received_bytes"}
             ]
         },
         {
             "name": "CRSF Altitude",
-            "type": "TplTextWidget",
-            "x": 330,
-            "y": 100,
-            "template": "Высота - %.1f м",
+            "type": "IconTplTextWidget",
+            "x": -390,
+            "y": 160,
+	    "icon_path": "network.png",
+            "template": "Высота - %f м",
             "facts": [
                 {"name": "altitude", "tags": {"sysid": "1", "compid": "1"}}
             ]
@@ -182,24 +186,24 @@
         {
             "name": "CRSF Attitude Background",
             "type": "BoxWidget",
-            "x": 60,
-            "y": 190,
-            "width": 270,
-            "height": 120,
+            "x": 100,
+            "y": -190,
+            "width": 180,
+            "height": 90,
             "color": {
                 "r": 0.0,
                 "g": 0.0,
                 "b": 0.0,
-                "alpha": 0.4
+                "alpha": 0.2
             },
             "facts": []
         },
         {
             "name": "CRSF Yaw",
             "type": "TplTextWidget",
-            "x": 70,
-            "y": 200,
-            "template": "Курс - %.1f°",
+            "x": 110,
+            "y": -170,
+            "template": "Курс: %f°",
             "facts": [
                 {"name": "attitude.yaw", "tags": {"sysid": "1", "compid": "1"}}
             ]
@@ -207,9 +211,9 @@
         {
             "name": "CRSF Roll",
             "type": "TplTextWidget",
-            "x": 70,
-            "y": 230,
-            "template": "Крен - %.1f°",
+            "x": 110,
+            "y": -140,
+            "template": "Крен: %f°",
             "facts": [
                 {"name": "attitude.roll", "tags": {"sysid": "1", "compid": "1"}}
             ]
@@ -217,9 +221,9 @@
         {
             "name": "CRSF Pitch",
             "type": "TplTextWidget",
-            "x": 70,
-            "y": 260,
-            "template": "Тангаж - %.1f°",
+            "x": 110,
+            "y": -110,
+            "template": "Тангаж: %f°",
             "facts": [
                 {"name": "attitude.pitch", "tags": {"sysid": "1", "compid": "1"}}
             ]
@@ -227,8 +231,8 @@
         {
             "name": "CRSF Flight Mode",
             "type": "TplTextWidget",
-            "x": 70,
-            "y": 290,
+            "x": -390,
+            "y": 190,
             "template": "Режим полета - %s",
             "facts": [
                 {"name": "flight_mode", "tags": {"sysid": "1", "compid": "1"}}
@@ -236,10 +240,13 @@
         },
         {
             "name": "Video FPS and resolution",
-            "type": "TplTextWidget",
-            "x": 0,
+            "type": "VideoWidget",
+            "x": 800,
             "y": 20,
-            "template": "%.0f Кадр/с %ux%u",
+	    "icon_path": "framerate.png",
+	    "per_second_window_s": 2,
+	    "per_second_bucket_ms": 200,
+            "template": "%u Кадр/с %ux%u",
             "facts": [
                 {
                     "__comment": "Will be converted to per-second",
