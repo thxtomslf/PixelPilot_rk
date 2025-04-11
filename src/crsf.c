@@ -75,7 +75,6 @@ void handleCrsfPacket(uint8_t ptype, const uint8_t* data, size_t length) {
         osd_add_double_fact(batch, "battery.voltage", tags, 2, (double)crsf_battery_voltage);
         osd_add_double_fact(batch, "battery.current", tags, 2, (double)crsf_battery_current);
         osd_add_double_fact(batch, "battery.consumed_mah", tags, 2, (double)crsf_battery_mah);
-        osd_add_double_fact(batch, "battery.remaining_percent", tags, 2, (double)crsf_remaining);
         osd_publish_batch(batch);
     } 
     else if (ptype == CRSF_ATTITUDE_TYPE) {

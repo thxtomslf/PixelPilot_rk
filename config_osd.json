@@ -117,8 +117,8 @@
         {
             "name": "CRSF Battery Background",
             "type": "BoxWidget",
-            "x": 0,
-            "y": 100,
+            "x": 60,
+            "y": 60,
             "width": 270,
             "height": 120,
             "color": {
@@ -132,9 +132,9 @@
         {
             "name": "CRSF Battery Voltage",
             "type": "TplTextWidget",
-            "x": 10,
-            "y": 110,
-            "template": "BAT: %.1fV",
+            "x": 70,
+            "y": 70,
+            "template": "Аккумулятор - %.1f В",
             "facts": [
                 {"name": "battery.voltage", "tags": {"sysid": "1", "compid": "1"}}
             ]
@@ -142,9 +142,9 @@
         {
             "name": "CRSF Battery Current",
             "type": "TplTextWidget",
-            "x": 10,
-            "y": 140,
-            "template": "CUR: %.1fA",
+            "x": 70,
+            "y": 100,
+            "template": "Ток - %.1f А",
             "facts": [
                 {"name": "battery.current", "tags": {"sysid": "1", "compid": "1"}}
             ]
@@ -152,30 +152,40 @@
         {
             "name": "CRSF Battery Consumed",
             "type": "TplTextWidget",
-            "x": 10,
-            "y": 170,
-            "template": "MAH: %.0f",
+            "x": 70,
+            "y": 130,
+            "template": "Потрачено - %.0f мАч",
             "facts": [
                 {"name": "battery.consumed_mah", "tags": {"sysid": "1", "compid": "1"}}
             ]
         },
         {
-            "name": "CRSF Battery Remaining",
+            "name": "CRSF Link Throughput",
             "type": "TplTextWidget",
-            "x": 150,
-            "y": 110,
-            "template": "REM: %.0f%%",
+            "x": 330,
+            "y": 70,
+            "template": "Связь - %.1f МБ/с",
             "facts": [
-                {"name": "battery.remaining_percent", "tags": {"sysid": "1", "compid": "1"}}
+                {"name": "gstreamer.received_bytes"}
+            ]
+        },
+        {
+            "name": "CRSF Altitude",
+            "type": "TplTextWidget",
+            "x": 330,
+            "y": 100,
+            "template": "Высота - %.1f м",
+            "facts": [
+                {"name": "altitude", "tags": {"sysid": "1", "compid": "1"}}
             ]
         },
         {
             "name": "CRSF Attitude Background",
             "type": "BoxWidget",
-            "x": 0,
-            "y": 230,
+            "x": 60,
+            "y": 190,
             "width": 270,
-            "height": 100,
+            "height": 120,
             "color": {
                 "r": 0.0,
                 "g": 0.0,
@@ -185,64 +195,51 @@
             "facts": []
         },
         {
-            "name": "CRSF Pitch",
-            "type": "TplTextWidget",
-            "x": 10,
-            "y": 240,
-            "template": "PITCH: %.1f°",
-            "facts": [
-                {"name": "attitude.pitch", "tags": {"sysid": "1", "compid": "1"}}
-            ]
-        },
-        {
-            "name": "CRSF Roll",
-            "type": "TplTextWidget",
-            "x": 10,
-            "y": 270,
-            "template": "ROLL: %.1f°",
-            "facts": [
-                {"name": "attitude.roll", "tags": {"sysid": "1", "compid": "1"}}
-            ]
-        },
-        {
             "name": "CRSF Yaw",
             "type": "TplTextWidget",
-            "x": 10,
-            "y": 300,
-            "template": "YAW: %.1f°",
+            "x": 70,
+            "y": 200,
+            "template": "Курс - %.1f°",
             "facts": [
                 {"name": "attitude.yaw", "tags": {"sysid": "1", "compid": "1"}}
             ]
         },
         {
-            "name": "CRSF Altitude",
+            "name": "CRSF Roll",
             "type": "TplTextWidget",
-            "x": 150,
-            "y": 240,
-            "template": "ALT: %.1fm",
+            "x": 70,
+            "y": 230,
+            "template": "Крен - %.1f°",
             "facts": [
-                {"name": "altitude", "tags": {"sysid": "1", "compid": "1"}}
+                {"name": "attitude.roll", "tags": {"sysid": "1", "compid": "1"}}
+            ]
+        },
+        {
+            "name": "CRSF Pitch",
+            "type": "TplTextWidget",
+            "x": 70,
+            "y": 260,
+            "template": "Тангаж - %.1f°",
+            "facts": [
+                {"name": "attitude.pitch", "tags": {"sysid": "1", "compid": "1"}}
             ]
         },
         {
             "name": "CRSF Flight Mode",
             "type": "TplTextWidget",
-            "x": 150,
-            "y": 270,
-            "template": "MODE: %s",
+            "x": 70,
+            "y": 290,
+            "template": "Режим полета - %s",
             "facts": [
                 {"name": "flight_mode", "tags": {"sysid": "1", "compid": "1"}}
             ]
         },
         {
             "name": "Video FPS and resolution",
-            "type": "VideoWidget",
-            "x": -250,
-            "y": 126,
-            "icon_path": "framerate.png",
-            "template": "%u fps | %ux%u",
-            "per_second_window_s": 2,
-            "per_second_bucket_ms": 200,
+            "type": "TplTextWidget",
+            "x": 0,
+            "y": 20,
+            "template": "%.0f Кадр/с %ux%u",
             "facts": [
                 {
                     "__comment": "Will be converted to per-second",
@@ -257,20 +254,13 @@
             ]
         },
         {
-            "name": "Video link throughput",
-            "type": "VideoBitrateWidget",
-            "x": -250,
-            "y": 156,
-            "icon_path": "network.png",
-            "template": "%f Mbps",
-            "per_second_window_s": 2,
-            "per_second_bucket_ms": 100,
-            "facts": [
-                {
-                    "__comment": "Should be sum per-second, scaled to Megs",
-                    "name": "gstreamer.received_bytes"
-                }
-            ]
+            "name": "Crosshair",
+            "type": "IconTextWidget",
+            "x": 0,
+            "y": 0,
+            "icon_path": "cross.png",
+            "text": "",
+            "facts": []
         },
         {
             "name": "DVR status",
