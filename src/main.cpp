@@ -35,6 +35,8 @@
 #include <nlohmann/json.hpp>
 #include "spdlog/spdlog.h"
 
+#include <systemd/sd-bus.h>
+
 extern "C" {
 #include "main.h"
 #include "drm.h"
@@ -90,6 +92,8 @@ uint32_t refresh_frequency_ms = 1000;
 
 VideoCodec codec = VideoCodec::H265;
 Dvr *dvr = NULL;
+
+char* external_dvr_service = NULL;
 
 void init_buffer(MppFrame frame) {
 	output_list->video_frm_width = mpp_frame_get_width(frame);
@@ -507,6 +511,8 @@ void printHelp() {
 	"                             Use \"0\" to disable this stats\n"
     "\n"
     "    --version              - Show program version\n"
+    "\n"
+    "    --external-dvr-service - Specify an external DVR service\n"
     "\n", APP_VERSION_MAJOR, APP_VERSION_MINOR
   );
 }
@@ -683,6 +689,15 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
+	__OnArgument("--external-dvr-service") {
+		if (dvr_template != NULL || dvr_autostart || video_framerate >= 0 || mp4_fragmentation_mode) {
+			fprintf(stderr, "ERROR: --external-dvr-service is incompatible with other DVR options\n");
+			return -1;
+		}
+		external_dvr_service = const_cast<char*>(__ArgValue);
+		continue;
+	}
+
 	__EndParseConsoleArguments__
 
 	spdlog::set_level(log_level);
@@ -777,8 +792,11 @@ int main(int argc, char **argv)
 	ret = pthread_cond_init(&video_cond, NULL);
 	assert(!ret);
 
-	pthread_t tid_frame, tid_display, tid_osd, tid_mavlink, tid_crsf, tid_dvr, tid_wfbcli;
-	if (dvr_template != NULL) {
+	pthread_t tid_frame, tid_display, tid_osd, tid_mavlink, tid_crsf, tid_dvr, tid_wfbcli, tid_ext_dvr;
+	if (external_dvr_service != NULL) {
+		ret = pthread_create(&tid_ext_dvr, NULL, __EXTERNAL_DVR_THREAD__, NULL);
+		assert(!ret);
+	} else if (dvr_template != NULL) {
 		dvr_thread_params args;
 		args.filename_template = dvr_template;
 		args.mp4_fragmentation_mode = mp4_fragmentation_mode;
@@ -870,6 +888,11 @@ int main(int argc, char **argv)
 		assert(!ret);
 	}
 
+	if (external_dvr_service != NULL) {
+		ret = pthread_join(tid_ext_dvr, NULL);
+		assert(!ret);
+	}
+
 	ret = mpi.mpi->reset(mpi.ctx);
 	assert(!ret);
 
@@ -913,4 +936,75 @@ int main(int argc, char **argv)
     remove(pidFilePath.c_str());
 
 	return 0;
+}
+
+void *__EXTERNAL_DVR_THREAD__(void *param) {
+    pthread_setname_np(pthread_self(), "__EXT_DVR");
+    sd_bus *bus = NULL;
+    int r;
+
+    // Connect to system bus
+    r = sd_bus_open_system(&bus);
+    if (r < 0) {
+        spdlog::error("Failed to connect to system bus: {}", strerror(-r));
+        return NULL;
+    }
+
+    while (!signal_flag) {
+        sd_bus_error error = SD_BUS_ERROR_NULL;
+        sd_bus_message *reply = NULL;
+        char *state = NULL;
+
+        // Get service state
+        r = sd_bus_call_method(bus,
+                              "org.freedesktop.systemd1",
+                              "/org/freedesktop/systemd1",
+                              "org.freedesktop.systemd1.Manager",
+                              "GetUnit",
+                              &error,
+                              &reply,
+                              "s",
+                              external_dvr_service);
+
+        if (r < 0) {
+            spdlog::warn("Failed to get service state: {}", error.message);
+            osd_publish_bool_fact("dvr.recording", NULL, 0, false);
+        } else {
+            const char *path;
+            r = sd_bus_message_read(reply, "o", &path);
+            if (r < 0) {
+                spdlog::warn("Failed to parse service path: {}", strerror(-r));
+                osd_publish_bool_fact("dvr.recording", NULL, 0, false);
+            } else {
+                sd_bus_message_unref(reply);
+                reply = NULL;
+
+                r = sd_bus_get_property_string(bus,
+                                             "org.freedesktop.systemd1",
+                                             path,
+                                             "org.freedesktop.systemd1.Unit",
+                                             "ActiveState",
+                                             &error,
+                                             &state);
+
+                if (r < 0) {
+                    spdlog::warn("Failed to get service state: {}", error.message);
+                    osd_publish_bool_fact("dvr.recording", NULL, 0, false);
+                } else {
+                    bool is_active = (strcmp(state, "active") == 0);
+                    osd_publish_bool_fact("dvr.recording", NULL, 0, is_active);
+                    free(state);
+                }
+            }
+        }
+
+        sd_bus_error_free(&error);
+        if (reply) {
+            sd_bus_message_unref(reply);
+        }
+        sleep(1); // Check every second
+    }
+
+    sd_bus_unref(bus);
+    return NULL;
 }

@@ -165,9 +165,9 @@
             "x": -390,
             "y": 130,
             "template": "Связь - %f МБ/с",
-	    "icon_path": "network.png",
-	    "per_second_window_s": 2,
-	    "per_second_bucket_ms": 100,
+            "icon_path": "network.png",
+            "per_second_window_s": 2,
+            "per_second_bucket_ms": 100,
             "facts": [
                 {"name": "gstreamer.received_bytes"}
             ]
@@ -242,9 +242,9 @@
             "type": "VideoWidget",
             "x": 800,
             "y": 20,
-	    "icon_path": "framerate.png",
-	    "per_second_window_s": 2,
-	    "per_second_bucket_ms": 200,
+            "icon_path": "framerate.png",
+            "per_second_window_s": 2,
+            "per_second_bucket_ms": 200,
             "template": "%u Кадр/с %ux%u",
             "facts": [
                 {
@@ -278,25 +278,6 @@
             "facts": [
                 {"name": "dvr.recording"}
             ]
-        },
-        {
-            "name": "Custom fading message",
-            "type": "PopupWidget",
-            "x": 400,
-            "y": 50,
-            "timeout_ms": 10000,
-            "facts": [
-                {"name": "osd.custom_message"}
-            ]
-        },
-        {
-            "name": "msposd",
-            "type": "ExternalSurfaceWidget",
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0,
-            "facts": []
         }
     ]
 }
