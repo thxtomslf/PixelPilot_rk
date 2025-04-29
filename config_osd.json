@@ -178,8 +178,48 @@
             "y": 60,
             "icon_path": "sdcard-white.png",
             "text": "Запись",
+            "text_color": {
+                "r": 255.0,
+                "g": 0.0,
+                "b": 0.0,
+                "alpha": 1.0
+            },
             "facts": [
                 {"name": "dvr.recording"}
+            ]
+        },
+        {
+            "name": "DVR status",
+            "type": "DvrStatusWidget",
+            "x": 865,
+            "y": 60,
+            "icon_path": "sdcard-white.png",
+            "text": "Ошибка записи",
+            "text_color": {
+                "r": 149.0,
+                "g": 6.0,
+                "b": 6.0,
+                "alpha": 1.0
+            },
+            "facts": [
+                {"name": "dvr.error"}
+            ]
+        },
+        {
+            "name": "DVR status",
+            "type": "DvrStatusWidget",
+            "x": 875,
+            "y": 60,
+            "icon_path": "sdcard-white.png",
+            "text": "Сохранение",
+            "text_color": {
+                "r": 255,
+                "g": 255.0,
+                "b": 0.0,
+                "alpha": 1.0
+            },
+            "facts": [
+                {"name": "dvr.saving"}
             ]
         },
         {

@@ -822,8 +822,8 @@ private:
 
 class DvrStatusWidget: public IconTextWidget {
 public:
-	DvrStatusWidget(int pos_x, int pos_y, cairo_surface_t *icon, std::string text) :
-		IconTextWidget(pos_x, pos_y, icon, text) {
+	DvrStatusWidget(int pos_x, int pos_y, cairo_surface_t *icon, std::string text, double r = 255.0, double g = 0.0, double b = 0.0, double a = 1.0) :
+		IconTextWidget(pos_x, pos_y, icon, text), text_r(r), text_g(g), text_b(b), text_a(a) {
 		args.push_back(Fact());
 	};
 
@@ -833,12 +833,15 @@ public:
 			cairo_save(cr);
 			cairo_set_source_surface(cr, icon, x, y - 20);
 			cairo_paint(cr);
-			cairo_set_source_rgba(cr, 255.0, 0.0, 0.0, 1);
+			cairo_set_source_rgba(cr, text_r, text_g, text_b, text_a);
 			cairo_move_to(cr, x + 40, y);
 			cairo_show_text(cr, text.c_str());
 			cairo_restore(cr);
 		}
 	}
+
+private:
+	double text_r, text_g, text_b, text_a;
 };
 
 class VideoWidget: public IconTplTextWidget {
@@ -1204,7 +1207,18 @@ public:
 				auto icon_path = widget_j.at("icon_path").template get<std::filesystem::path>();
 				cairo_surface_t *icon = openIcon(name, assets_dir, icon_path);
 				if (icon == NULL) break;
-				addWidget(new DvrStatusWidget(x, y, icon, text), matchers);
+				
+				// Get text color if specified, otherwise use default red
+				double r = 255.0, g = 0.0, b = 0.0, a = 1.0;
+				if (widget_j.contains("text_color")) {
+					json color_j = widget_j.at("text_color");
+					r = color_j.at("r").template get<double>();
+					g = color_j.at("g").template get<double>();
+					b = color_j.at("b").template get<double>();
+					a = color_j.at("alpha").template get<double>();
+				}
+				
+				addWidget(new DvrStatusWidget(x, y, icon, text, r, g, b, a), matchers);
 			} else if(type == "VideoWidget") {
 				auto tpl = widget_j.at("template").template get<std::string>();
 				auto icon_path = widget_j.at("icon_path").template get<std::filesystem::path>();
@@ -1426,7 +1440,7 @@ void modeset_paint_buffer(struct modeset_buf *buf, Osd *osd) {
 
 	// Set Roboto Bold font with larger size
 	cairo_select_font_face(cr, "Roboto", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
-	cairo_set_font_size(cr, 24);
+	cairo_set_font_size(cr, 20);
 
 	osd->draw(cr);
 

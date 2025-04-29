@@ -969,12 +969,16 @@ void *__EXTERNAL_DVR_THREAD__(void *param) {
         if (r < 0) {
             spdlog::warn("Failed to get service state: {}", error.message);
             osd_publish_bool_fact("dvr.recording", NULL, 0, false);
+            osd_publish_bool_fact("dvr.error", NULL, 0, false);
+            osd_publish_bool_fact("dvr.saving", NULL, 0, false);
         } else {
             const char *path;
             r = sd_bus_message_read(reply, "o", &path);
             if (r < 0) {
                 spdlog::warn("Failed to parse service path: {}", strerror(-r));
                 osd_publish_bool_fact("dvr.recording", NULL, 0, false);
+                osd_publish_bool_fact("dvr.error", NULL, 0, false);
+                osd_publish_bool_fact("dvr.saving", NULL, 0, false);
             } else {
                 sd_bus_message_unref(reply);
                 reply = NULL;
@@ -990,9 +994,17 @@ void *__EXTERNAL_DVR_THREAD__(void *param) {
                 if (r < 0) {
                     spdlog::warn("Failed to get service state: {}", error.message);
                     osd_publish_bool_fact("dvr.recording", NULL, 0, false);
+                    osd_publish_bool_fact("dvr.error", NULL, 0, false);
+                    osd_publish_bool_fact("dvr.saving", NULL, 0, false);
                 } else {
                     bool is_active = (strcmp(state, "active") == 0);
+                    bool is_failed = (strcmp(state, "failed") == 0);
+                    bool is_deactivating = (strcmp(state, "deactivating") == 0);
+                    
                     osd_publish_bool_fact("dvr.recording", NULL, 0, is_active);
+                    osd_publish_bool_fact("dvr.error", NULL, 0, is_failed);
+                    osd_publish_bool_fact("dvr.saving", NULL, 0, is_deactivating);
+                    
                     free(state);
                 }
             }
