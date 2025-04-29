@@ -1,4 +1,3 @@
-
 extern "C" {
 #include "drm.h"
 #include "mavlink.h"
@@ -580,9 +579,47 @@ public:
 		cairo_fill(cr);
 	}
 
-private:
+protected:
 	uint w, h;
 	double r, g, b, a;
+};
+
+class BorderedBoxWidget: public BoxWidget {
+public:
+    BorderedBoxWidget(int pos_x, int pos_y, uint w, uint h, 
+                     double r, double g, double b, double a,
+                     double border_r, double border_g, double border_b, double border_a,
+                     uint border_width):
+        BoxWidget(pos_x, pos_y, w, h, r, g, b, a),
+        border_r(border_r), border_g(border_g), border_b(border_b), border_a(border_a),
+        border_width(border_width) {};
+
+    virtual void draw(cairo_t *cr) {
+        auto [x, y] = xy(cr);
+        
+        // First draw the filled box (slightly smaller to account for border)
+        cairo_set_source_rgba(cr, r, g, b, a);
+        cairo_rectangle(cr, 
+                       x + border_width, 
+                       y + border_width, 
+                       w - 2*border_width, 
+                       h - 2*border_width);
+        cairo_fill(cr);
+        
+        // Then draw the border
+        cairo_set_source_rgba(cr, border_r, border_g, border_b, border_a);
+        cairo_set_line_width(cr, border_width);
+        cairo_rectangle(cr, 
+                       x + border_width/2.0, 
+                       y + border_width/2.0, 
+                       w - border_width, 
+                       h - border_width);
+        cairo_stroke(cr);
+    }
+
+private:
+    double border_r, border_g, border_b, border_a;
+    uint border_width;
 };
 
 class BarChartWidget: public Widget {
@@ -1207,6 +1244,31 @@ public:
 				auto b = color_j.at("b").template get<double>();
 				auto a = color_j.at("alpha").template get<double>();
 				addWidget(new BoxWidget(x, y, width, height, r, g, b, a), matchers);
+			} else if (type == "BorderedBoxWidget") {
+				auto width = widget_j.at("width").template get<uint>();
+				auto height = widget_j.at("height").template get<uint>();
+				
+				// Get fill color
+				json color_j = widget_j.at("color");
+				auto r = color_j.at("r").template get<double>();
+				auto g = color_j.at("g").template get<double>();
+				auto b = color_j.at("b").template get<double>();
+				auto a = color_j.at("alpha").template get<double>();
+				
+				// Get border color
+				json border_color_j = widget_j.at("border_color");
+				auto border_r = border_color_j.at("r").template get<double>();
+				auto border_g = border_color_j.at("g").template get<double>();
+				auto border_b = border_color_j.at("b").template get<double>();
+				auto border_a = border_color_j.at("alpha").template get<double>();
+				
+				// Get border width
+				auto border_width = widget_j.at("border_width").template get<uint>();
+				
+				addWidget(new BorderedBoxWidget(x, y, width, height, 
+											   r, g, b, a,
+											   border_r, border_g, border_b, border_a,
+											   border_width), matchers);
 			} else if(type == "BarChartWidget") {
 				auto width = widget_j.at("width").template get<uint>();
 				auto height = widget_j.at("height").template get<uint>();
@@ -1362,8 +1424,9 @@ void modeset_paint_buffer(struct modeset_buf *buf, Osd *osd) {
 	cairo_paint(cr);
 	cairo_restore(cr);
 
-	cairo_select_font_face (cr, "Roboto", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-	cairo_set_font_size (cr, 20);
+	// Set Roboto Bold font with larger size
+	cairo_select_font_face(cr, "Roboto", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+	cairo_set_font_size(cr, 24);
 
 	osd->draw(cr);
 
